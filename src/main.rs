@@ -1,55 +1,25 @@
-use std::fs;
+mod lib;
+
+use crate::lib::git::has_remote;
+use crate::lib::{
+    dir::walk_dirs,
+    Git::{Git, NotGit},
+};
 use std::path::Path;
 
 fn main() {
     let root = "/home/silence/projects/rust";
-    let git_dirs = walk_dirs(Path::new(root));
-    println!("git_dirs: {:#?}", git_dirs);
-}
-
-#[derive(Debug)]
-enum Git {
-    Git(Box<Path>),
-    NotGit(Box<Path>),
-}
-
-fn walk_dirs(dir: &Path) -> Vec<Git> {
-    fs::read_dir(dir)
-        .unwrap()
-        .flat_map(|entry| {
-            let entry = entry.unwrap();
-            let path = entry.path();
-            if path.is_dir() {
-                if dir_has_git_dir(&path) {
-                    return vec![Git::Git(path.into_boxed_path())];
-                }
-                let mut v = walk_dirs(&path);
-                v.push(Git::NotGit(path.into_boxed_path()));
-                return v;
+    let dirs = walk_dirs(Path::new(root));
+    dirs.iter().for_each(|dir| match dir {
+        Git(path) => {
+            if has_remote(path) {
+                println!("{} has remote", path.display());
+            } else {
+                println!("{} dont's has remote", path.display());
             }
-            vec![]
-        })
-        .collect()
-}
-
-/// 该函数检查目录是否包含“.git”目录。
-///
-/// 参数:
-///
-/// * `dir`: `dir` 参数是对 `Path` 对象的引用，表示文件系统路径。函数 `dir_has_git_dir` 将此路径作为输入并检查它是否包含名为“.git”的目录。
-///
-/// 返回得::
-///
-/// 一个布尔值，指示给定目录是否包含名为“.git”的子目录。
-fn dir_has_git_dir(dir: &Path) -> bool {
-    let dirs = fs::read_dir(dir);
-    match dirs {
-        Ok(mut dirs) => {
-            dirs.any(|item| item.map_or_else(|_| false, |entry| entry.path().ends_with(".git")))
         }
-        Err(err) => {
-            println!("{}", err);
-            false
+        NotGit(path) => {
+            println!("{}", path.display());
         }
-    }
+    })
 }
