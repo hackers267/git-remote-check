@@ -4,6 +4,8 @@ use std::path::Path;
 
 #[derive(Debug)]
 pub enum Git {
-    Git(Box<Path>),
-    NotGit(Box<Path>),
+    Local(Box<Path>),
+    Remote(Box<Path>),
+    RemoteSync(Box<Path>),
+    No(Box<Path>),
 }
