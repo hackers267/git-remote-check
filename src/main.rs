@@ -1,14 +1,13 @@
-mod lib;
+use std::path::Path;
 
-use crate::lib::git::{
-    has_remote, local_file_contents, local_files, remote_file_contents, remote_files,
-};
+use crate::lib::dir::is_remote_local_syuc;
+use crate::lib::git::has_remote;
 use crate::lib::{
     dir::walk_dirs,
     Git::{Git, NotGit},
 };
-use std::collections::HashSet;
-use std::path::Path;
+
+mod lib;
 
 fn main() {
     let root = "/home/silence/projects/rust";
@@ -16,26 +15,22 @@ fn main() {
     dirs.iter().for_each(|dir| match dir {
         Git(path) => {
             if has_remote(path) {
-                let remote_contents = remote_file_contents(path);
-                let local_contents = local_file_contents(path);
-                let remote: HashSet<_> = remote_contents
-                    .iter()
-                    .filter_map(|item| item.as_ref().ok())
-                    .collect();
-                let local: HashSet<_> = local_contents
-                    .iter()
-                    .filter_map(|item| item.as_ref().ok())
-                    .collect();
-                let same = !remote.is_disjoint(&local);
+                let same = is_remote_local_syuc(path);
                 if !same {
+                    // TODO: 以Orange字体输出
                     println!("remote and local are different: {:?}", path);
+                } else {
+                    // TODO: 以Green字体输出
+                    println!("remote and local are same: {:?}", path);
                 }
             } else {
-                println!("{} dont's has remote", path.display());
+                // TODO: 以黄色字体输出
+                println!("{:?} dont's has remote", path);
             }
         }
         NotGit(path) => {
-            println!("{}", path.display());
+            // TODO: 以红色字体输出
+            println!("{:?}", path);
         }
     })
 }

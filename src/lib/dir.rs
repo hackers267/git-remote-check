@@ -1,4 +1,6 @@
+use crate::lib::git::{local_file_contents, remote_file_contents};
 use crate::lib::Git;
+use std::collections::HashSet;
 use std::fs;
 use std::path::Path;
 
@@ -44,4 +46,19 @@ fn dir_has_git_dir(dir: &Path) -> bool {
 
 pub fn read_file(file: &Path) -> std::io::Result<String> {
     fs::read_to_string(file)
+}
+
+pub fn file_contents_to_hash_set(contents: &[Result<String, std::io::Error>]) -> HashSet<&String> {
+    contents
+        .iter()
+        .filter_map(|item| item.as_ref().ok())
+        .collect()
+}
+
+pub fn is_remote_local_syuc(path: &Path) -> bool {
+    let remote_contents = remote_file_contents(path);
+    let local_contents = local_file_contents(path);
+    let remote: HashSet<_> = file_contents_to_hash_set(&remote_contents);
+    let local: HashSet<_> = file_contents_to_hash_set(&local_contents);
+    !remote.is_disjoint(&local)
 }
