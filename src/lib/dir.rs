@@ -1,5 +1,5 @@
-use crate::lib::git::{has_remote, local_file_contents, remote_file_contents};
-use crate::lib::Git;
+use crate::git::{has_remote, local_file_contents, remote_file_contents};
+use crate::Git;
 use std::collections::HashSet;
 use std::fs;
 use std::path::Path;
@@ -13,7 +13,7 @@ pub fn walk_dirs(dir: &Path) -> Vec<Git> {
             if path.is_dir() {
                 if dir_has_git_dir(&path) {
                     if has_remote(&path) {
-                        let same = is_remote_local_syuc(&path);
+                        let same = is_remote_local_sync(&path);
                         return if same {
                             vec![Git::RemoteSync(path.into_boxed_path())]
                         } else {
@@ -22,7 +22,7 @@ pub fn walk_dirs(dir: &Path) -> Vec<Git> {
                     }
                     return vec![Git::Local(path.into_boxed_path())];
                 }
-                let mut v = crate::walk_dirs(&path);
+                let mut v = walk_dirs(&path);
                 v.push(Git::No(path.into_boxed_path()));
                 return v;
             }
@@ -63,7 +63,7 @@ pub fn file_contents_to_hash_set(contents: &[Result<String, std::io::Error>]) ->
         .collect()
 }
 
-pub fn is_remote_local_syuc(path: &Path) -> bool {
+pub fn is_remote_local_sync(path: &Path) -> bool {
     let remote_contents = remote_file_contents(path);
     let local_contents = local_file_contents(path);
     let remote: HashSet<_> = file_contents_to_hash_set(&remote_contents);

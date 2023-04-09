@@ -1,4 +1,4 @@
-use crate::lib::dir::read_file;
+use crate::dir::read_file;
 use std::fs;
 use std::path::Path;
 

@@ -2,7 +2,7 @@ pub mod dir;
 pub mod git;
 use std::path::Path;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Git {
     Local(Box<Path>),
     Remote(Box<Path>),
