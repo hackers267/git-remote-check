@@ -1,17 +1,18 @@
-use crate::lib::dir::is_remote_local_syuc;
-use crate::lib::git::has_remote;
+mod lib;
+
 use crate::lib::{
+    dir::is_remote_local_syuc,
     dir::walk_dirs,
+    git::has_remote,
     Git::{Git, NotGit},
 };
 use colored::Colorize;
 use std::path::Path;
 
-mod lib;
-
 fn main() {
-    let root = "/home/silence/projects/rust";
-    let dirs = walk_dirs(Path::new(root));
+    let mut args = std::env::args();
+    let root = args.nth(1).unwrap_or(".".to_string());
+    let dirs = walk_dirs(Path::new(&root));
     dirs.iter().for_each(|dir| match dir {
         Git(path) => {
             if has_remote(path) {
