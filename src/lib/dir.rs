@@ -41,3 +41,7 @@ fn dir_has_git_dir(dir: &Path) -> bool {
         }
     }
 }
+
+pub fn read_file(file: &Path) -> std::io::Result<String> {
+    fs::read_to_string(file)
+}
