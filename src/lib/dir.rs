@@ -5,6 +5,9 @@ use std::fs;
 use std::path::Path;
 
 pub fn walk_dirs(dir: &Path) -> Vec<Git> {
+    if is_ignore(dir) {
+        return vec![];
+    }
     fs::read_dir(dir)
         .unwrap()
         .flat_map(|entry| {
@@ -29,6 +32,10 @@ pub fn walk_dirs(dir: &Path) -> Vec<Git> {
             vec![]
         })
         .collect()
+}
+fn is_ignore(dir: &Path) -> bool {
+    let ignores = vec![".git", "node_modules", "target", "dist", ".idea", "vscode"];
+    ignores.iter().any(|ignore| dir.ends_with(ignore))
 }
 /// 该函数检查目录是否包含“.git”目录。
 ///
